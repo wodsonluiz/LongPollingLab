@@ -37,7 +37,7 @@ namespace ExampleChangeStream
         private void Handler(IMongoCollection<Order> collection)
         {
             //Configurando um pipeline
-            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>().Match("{ $match: { 'operationType': 'insert' } }");
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>().Match("{ operationType: { $in: ['insert', 'update', 'replace', 'delete'] } }");
 
             //Abrindo o Change stream
             var options = new ChangeStreamOptions
