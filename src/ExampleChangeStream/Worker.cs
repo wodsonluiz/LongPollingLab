@@ -7,50 +7,39 @@ namespace ExampleChangeStream
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly MongoService _mongoProvider;
+        private readonly MongoService _mongoService;
 
         public Worker(ILogger<Worker> logger, MongoService mongoProvider)
         {
             _logger = logger;
-            _mongoProvider = mongoProvider;
+            _mongoService = mongoProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var database = _mongoProvider.GetDatabase("MyCollections");
-                var collection = database.GetCollection<Order>("Orders");
-
-                Handler(collection);
+                WatchEventMongo(stoppingToken);
 
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
             }
         }
 
-        private void Handler(IMongoCollection<Order> collection)
+        private void WatchEventMongo(CancellationToken stoppingToken)
         {
-            //Configurando um pipeline
-            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>().Match("{ operationType: { $in: ['insert', 'update', 'replace', 'delete'] } }");
+            var watcher = _mongoService.ListenerEvents(stoppingToken);
 
-            //Abrindo o Change stream
-            var options = new ChangeStreamOptions
+            using (watcher) 
             {
-                FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
-            };
-
-            var changeStream = collection.Watch(pipeline, options);
-
-            //Manipulando eventos do Change Stream
-            using (var enumerator = changeStream.ToEnumerable().GetEnumerator())
-            {
-                while (enumerator.MoveNext())
+                while (watcher.MoveNext())
                 {
-                    var change = enumerator.Current;
+                    var change = watcher.Current;
+                    var result = JsonConvert.SerializeObject(change.FullDocument);
 
-                    Console.WriteLine($"Evento: {change.OperationType}");
-                    Console.WriteLine($"Documento: {JsonConvert.SerializeObject(change.FullDocument)}");
+                    Console.WriteLine(change.OperationType);
+                    Console.WriteLine("******* DOCUMENTO ********");
+                    Console.WriteLine(result);
                 }
             }
         }

@@ -9,5 +9,6 @@ namespace ExampleChangeStream
         public string _id { get; set; }
         public string Description { get; set; }
         public string Quantidade { get; set; }
+        public string Status { get; set; }
     }
 }
