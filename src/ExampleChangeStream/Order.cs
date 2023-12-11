@@ -1,7 +1,13 @@
-﻿namespace ExampleChangeStream
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace ExampleChangeStream
 {
     public class Order
     {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string _id { get; set; }
         public string Description { get; set; }
+        public string Quantidade { get; set; }
     }
 }

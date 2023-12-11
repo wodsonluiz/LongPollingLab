@@ -1,6 +1,6 @@
 using ExampleChangeStream.Service;
-using MongoDB.Bson;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace ExampleChangeStream
 {
@@ -19,11 +19,6 @@ namespace ExampleChangeStream
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                //var document = new Order
-                //{
-                //    Description = "Teste",
-                //};
-
                 var database = _mongoProvider.GetDatabase("MyCollections");
                 var collection = database.GetCollection<Order>("Orders");
 
@@ -53,8 +48,9 @@ namespace ExampleChangeStream
                 while (enumerator.MoveNext())
                 {
                     var change = enumerator.Current;
-                    _logger.LogInformation($"Evento: {change.OperationType}");
-                    _logger.LogInformation($"Documento: {change.FullDocument}");
+
+                    Console.WriteLine($"Evento: {change.OperationType}");
+                    Console.WriteLine($"Documento: {JsonConvert.SerializeObject(change.FullDocument)}");
                 }
             }
         }
