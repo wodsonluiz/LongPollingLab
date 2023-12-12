@@ -1,5 +1,4 @@
 using ExampleChangeStream.Service.Mongo;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace ExampleChangeStream
 {

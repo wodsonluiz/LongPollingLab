@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 namespace ExampleChangeStream.Service.Mongo
 {
@@ -12,22 +11,27 @@ namespace ExampleChangeStream.Service.Mongo
     {
         private readonly MongoProvider _provider;
         private readonly ITokenManger _tokenManger;
+        private readonly ChangeStreamOperationType[] _changeStreamOperationTypes;
 
         public MongoService(MongoProvider provider, ITokenManger tokenManger)
         {
             _provider = provider;
             _tokenManger = tokenManger;
+
+            _changeStreamOperationTypes = new[]
+            {
+                ChangeStreamOperationType.Update,
+                ChangeStreamOperationType.Insert,
+                ChangeStreamOperationType.Delete,
+                ChangeStreamOperationType.Replace,
+            };
         }
 
         public IEnumerator<ChangeStreamDocument<Order>> Listener(CancellationToken stoppingToken)
         {
-            //Configurando um pipeline
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>()
-                //.Match("{ operationType: { $in: ['insert', 'update', 'replace', 'delete'] } }")
-                .Match(change => change.OperationType == ChangeStreamOperationType.Update || change.OperationType == ChangeStreamOperationType.Insert)
-                .Match(change => change.FullDocument.Status == "pending");
+                .Match(change => _changeStreamOperationTypes.Contains(change.OperationType));
 
-            //Abrindo o Change stream
             var options = new ChangeStreamOptions
             {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
