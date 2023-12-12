@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace ExampleChangeStream.Service.Mongo
 {
@@ -7,7 +8,7 @@ namespace ExampleChangeStream.Service.Mongo
         IEnumerator<ChangeStreamDocument<Order>> Listener(CancellationToken stoppingToken);
     }
 
-    public class MongoService: IMongoService
+    public class MongoService : IMongoService
     {
         private readonly MongoProvider _provider;
         private readonly ITokenManger _tokenManger;
@@ -30,12 +31,12 @@ namespace ExampleChangeStream.Service.Mongo
         public IEnumerator<ChangeStreamDocument<Order>> Listener(CancellationToken stoppingToken)
         {
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>()
-                .Match(change => _changeStreamOperationTypes.Contains(change.OperationType));
+            .Match(change => _changeStreamOperationTypes.Contains(change.OperationType));
 
             var options = new ChangeStreamOptions
             {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
-                ResumeAfter = _tokenManger.Get()
+                StartAtOperationTime = _tokenManger.GetLastUpdatedDocument()
             };
 
             var collection = _provider.GetDatabase("MyCollections").GetCollection<Order>("Orders");

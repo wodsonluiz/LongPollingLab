@@ -44,7 +44,7 @@ namespace ExampleChangeStream
                     Console.WriteLine("******* DOCUMENTO ********");
                     Console.WriteLine(result);
 
-                    _tokenManger.Save(change.FullDocument.ToBsonDocument());
+                    _tokenManger.Save(change.ResumeToken);
                 }
             }
             catch 

@@ -14,7 +14,6 @@ namespace ExampleChangeStream
                     services.AddSingleton(new MongoProvider(conn));
                     services.AddSingleton<IMongoService, MongoService>();
                     services.AddSingleton<ITokenManger, TokenManger>();
-                    
 
                     services.AddHostedService<Worker>();
                 })
