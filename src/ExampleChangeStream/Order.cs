@@ -10,5 +10,6 @@ namespace ExampleChangeStream
         public string Description { get; set; }
         public string Quantidade { get; set; }
         public string Status { get; set; }
+        public string SecretKey { get; set; }
     }
 }
