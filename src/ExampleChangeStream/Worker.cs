@@ -1,5 +1,4 @@
 using ExampleChangeStream.Service.Mongo;
-using MongoDB.Bson;
 using Newtonsoft.Json;
 
 namespace ExampleChangeStream
@@ -30,7 +29,7 @@ namespace ExampleChangeStream
 
         private void WatchEventMongo(CancellationToken stoppingToken)
         {
-            var watcher = _service.Listener(stoppingToken);
+            var watcher = _service.Listener<Order>(stoppingToken);
 
             try
             {

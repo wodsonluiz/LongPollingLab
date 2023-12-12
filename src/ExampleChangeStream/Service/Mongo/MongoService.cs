@@ -5,7 +5,7 @@ namespace ExampleChangeStream.Service.Mongo
 {
     public interface IMongoService
     {
-        IEnumerator<ChangeStreamDocument<Order>> Listener(CancellationToken stoppingToken);
+        IEnumerator<ChangeStreamDocument<T>> Listener<T>(CancellationToken stoppingToken);
     }
 
     public class MongoService : IMongoService
@@ -28,18 +28,22 @@ namespace ExampleChangeStream.Service.Mongo
             };
         }
 
-        public IEnumerator<ChangeStreamDocument<Order>> Listener(CancellationToken stoppingToken)
+        public IEnumerator<ChangeStreamDocument<T>> Listener<T>(CancellationToken stoppingToken)
         {
-            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Order>>()
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<T>>()
             .Match(change => _changeStreamOperationTypes.Contains(change.OperationType));
 
             var options = new ChangeStreamOptions
             {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
-                StartAtOperationTime = _tokenManger.GetLastUpdatedDocument()
             };
 
-            var collection = _provider.GetDatabase("MyCollections").GetCollection<Order>("Orders");
+            var lastDocumentInOpLog = _tokenManger.GetLastUpdatedDocument();
+
+            if (lastDocumentInOpLog != null)
+                options.StartAtOperationTime = lastDocumentInOpLog;
+
+            var collection = _provider.GetDatabase("MyCollections").GetCollection<T>("Orders");
 
             var changeStream = collection.Watch(pipeline, options, stoppingToken)
                 .ToEnumerable()

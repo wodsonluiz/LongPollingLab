@@ -35,7 +35,7 @@ namespace ExampleChangeStream.Service.Mongo
         public void Save(BsonDocument document) =>
             _memoryCache.Set("TokenMongo", document, TimeSpan.FromMinutes(10));
 
-        private static BsonTimestamp GetLastOplogTimestamp(IMongoCollection<BsonDocument> oplogCollection)
+        private static BsonTimestamp? GetLastOplogTimestamp(IMongoCollection<BsonDocument> oplogCollection)
         {
             var sort = Builders<BsonDocument>.Sort.Descending("ts");
 
@@ -45,9 +45,9 @@ namespace ExampleChangeStream.Service.Mongo
                 .Sort(sort)
                 .FirstOrDefault();
 
-            var timestamp = lastOplogEntry?["ts"].AsBsonTimestamp;
+            var timestamp = lastOplogEntry?["ts"]?.AsBsonTimestamp;
 
-            return timestamp ?? new BsonTimestamp(0);
+            return timestamp;
         }
     }
 }
