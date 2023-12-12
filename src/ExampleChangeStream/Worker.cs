@@ -1,5 +1,6 @@
-using ExampleChangeStream.Service.Mongo;
 using Newtonsoft.Json;
+using Service.Models;
+using Service.Mongo;
 
 namespace ExampleChangeStream
 {

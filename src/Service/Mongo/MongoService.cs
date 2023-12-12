@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace ExampleChangeStream.Service.Mongo
+namespace Service.Mongo
 {
     public interface IMongoService
     {

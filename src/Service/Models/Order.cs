@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ExampleChangeStream
+namespace Service.Models
 {
     public class Order
     {
