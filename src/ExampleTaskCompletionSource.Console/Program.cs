@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExampleTaskCompletionSource
@@ -7,16 +10,27 @@ namespace ExampleTaskCompletionSource
     {
         static void Main(string[] args)
         {
-            var tcs = new TaskCompletionSource<int>();
+            var orders = Handler();
 
-            Task.Run(async () =>
+            Console.WriteLine("****************** Orders **********************");
+            Console.WriteLine(JsonConvert.SerializeObject(orders));
+        }
+
+        private static Task<IEnumerable<Order>> Handler()
+        {
+            var tcs = new TaskCompletionSource<IEnumerable<Order>>(TaskContinuationOptions.RunContinuationsAsynchronously);
+
+            ThreadPool.QueueUserWorkItem(_ =>
             {
-                await Task.Delay(20000);
-                tcs.TrySetResult(42);
+                for (int i = 0; i < 5; i++)
+                {
+                    var orders = Order.GetFakeOrders(10);
+
+                    tcs.SetResult(orders);
+                }
             });
 
-            var result = tcs.Task.GetAwaiter().GetResult();
-            Console.WriteLine($"Resultado da tarefa {result}");
+            return tcs.Task;
         }
     }
 }
