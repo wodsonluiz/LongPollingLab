@@ -36,20 +36,5 @@ namespace ExampleConcurrentBag
             Console.WriteLine("************* Fim - Retirando do bag ******************");
             Console.WriteLine($"Quantidade no bag: {bag.Count}");
         }
-
-        /// <summary>
-        /// Testa o fluxo Async com paralelismo
-        /// </summary>
-        /// <returns></returns>
-        static async Task HandlerWithAsyncAndParallel()
-        {
-            await Task.Run(() =>
-            {
-                Parallel.Invoke(
-                    () => { },
-                    () => { },
-                    () => { });
-            });
-        }
     }
 }
