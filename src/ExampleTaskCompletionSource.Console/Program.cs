@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,27 +11,25 @@ namespace ExampleTaskCompletionSource
     {
         static void Main(string[] args)
         {
-            var orders = Handler();
-
-            Console.WriteLine("****************** Orders **********************");
-            Console.WriteLine(JsonConvert.SerializeObject(orders));
+            var order = Order.GetFakeOrders(1).FirstOrDefault();
+            Handler(order).GetAwaiter().GetResult();
         }
 
-        private static Task<IEnumerable<Order>> Handler()
+        private static async Task Handler(Order order)
         {
-            var tcs = new TaskCompletionSource<IEnumerable<Order>>(TaskContinuationOptions.RunContinuationsAsynchronously);
+            var tcs = new TaskCompletionSource<bool>();
 
-            ThreadPool.QueueUserWorkItem(_ =>
+            order.DataRead += (sender, e) => 
             {
-                for (int i = 0; i < 5; i++)
-                {
-                    var orders = Order.GetFakeOrders(10);
+                Console.WriteLine("Chamando o processo de pagamento");
+                tcs.TrySetResult(true);
+            };
 
-                    tcs.SetResult(orders);
-                }
-            });
+            order.Pay();
 
-            return tcs.Task;
+            await tcs.Task;
+
+            System.Console.WriteLine("Processo de pagamento concluido");
         }
     }
 }
