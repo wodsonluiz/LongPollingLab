@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleIAsyncEnumerable", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleStateMachine", "src\ExampleStateMachine\ExampleStateMachine.csproj", "{D72EB178-A7A5-4602-8F44-6BBF7E5F0215}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleUsingUnwrap", "src\ExampleUsingUnwrap\ExampleUsingUnwrap.csproj", "{5DA443FF-9C1A-4996-984D-F396F6AD0D72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleUsingUnwrap", "src\ExampleUsingUnwrap\ExampleUsingUnwrap.csproj", "{5DA443FF-9C1A-4996-984D-F396F6AD0D72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleUsingParallel", "src\ExampleUsingParallel\ExampleUsingParallel.csproj", "{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{5DA443FF-9C1A-4996-984D-F396F6AD0D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DA443FF-9C1A-4996-984D-F396F6AD0D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DA443FF-9C1A-4996-984D-F396F6AD0D72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{897DA194-8A7B-4FB9-90D7-9495877309A8} = {2844319E-D104-4107-A08B-BBF6C2E69056}
 		{D72EB178-A7A5-4602-8F44-6BBF7E5F0215} = {2844319E-D104-4107-A08B-BBF6C2E69056}
 		{5DA443FF-9C1A-4996-984D-F396F6AD0D72} = {2844319E-D104-4107-A08B-BBF6C2E69056}
+		{2EDA899C-6C7B-4208-9AA3-8E7FA25D74A5} = {2844319E-D104-4107-A08B-BBF6C2E69056}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B7CA600-3670-4B8A-91D6-ACCF26ACC627}
