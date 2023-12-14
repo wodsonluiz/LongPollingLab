@@ -22,19 +22,14 @@ namespace ExampleTaskCompletionSource
             return result;
         }
     
-        public void Pay()
+        public void Pay(string pagamento)
         {
-            Task.Factory.StartNew(() => 
+            Task.Factory.StartNew(async () => 
             {
-                Console.WriteLine("Iniciando o pagamento");
-                Task.Delay(100000);
-                PayConfirmed();
+                Console.WriteLine($"Iniciando o pagamento - {pagamento}");
+                await Task.Delay(5000);
+                DataRead?.Invoke(this, EventArgs.Empty);
             });
-        }
-
-        protected virtual void PayConfirmed()
-        {
-            DataRead?.Invoke(this, EventArgs.Empty);
         }
     }
 }
