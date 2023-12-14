@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ExampleUsingParallel
@@ -7,8 +8,9 @@ namespace ExampleUsingParallel
     {
         static void Main(string[] args)
         {
-            Handler().GetAwaiter().GetResult();
-            HandlerWhtiThrow().GetAwaiter().GetResult();
+            //Handler().GetAwaiter().GetResult();
+            //HandlerWhtiThrow().GetAwaiter().GetResult();
+            HandlerWithFor().GetAwaiter().GetResult();
         }
 
         static async Task Handler()
@@ -70,6 +72,21 @@ namespace ExampleUsingParallel
             {
                 throw;
             }
+
+        }
+
+        static async Task HandlerWithFor()
+        {
+            var taskItens = new List<string>() { "Task 1", "Task 2", "Task 3" , "Task 4" };
+
+            await Task.Run(() =>
+            {
+                Parallel.ForEach(taskItens, new ParallelOptions { MaxDegreeOfParallelism = 2 }, (item, state) =>
+                {
+                    state.Stop();
+                    Console.WriteLine($"Executando a {item} as {DateTime.UtcNow.ToString("MM/dd/yyyy hh:mm:ss.fff tt")}");
+                });
+            });
 
         }
     }
