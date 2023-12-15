@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExampleLongPollingWithTaskCompletionSource
@@ -22,19 +24,39 @@ namespace ExampleLongPollingWithTaskCompletionSource
 
 
             // - Mongo trigou o evento
-            Handler(new OrderEvent { Id = "id_2" });
+            var simplePollingResult = HandlerResponseToClient(new OrderEvent { Id = "id_2" }, CancellationToken.None);
+            var timeout = Task.Delay(5000, CancellationToken.None);
+            // - Concorrência com timeout
+
+            var completedTask = Task.WhenAny(simplePollingResult, timeout).GetAwaiter().GetResult();
+
+            if(completedTask != timeout)
+            {
+                var result = completedTask as Task<SimplePolling>;
+
+                result.GetAwaiter().GetResult()?.Notify();
+            }
+            else
+            {
+                Console.WriteLine("Respondeu o timeout");
+            }
         }
 
-        static void Handler(OrderEvent orderEvent)
+        static Task<SimplePolling?> HandlerResponseToClient(OrderEvent orderEvent, CancellationToken cancellationToken)
         {
-            var simplesPollings = SimplePolling.GetSimplePollings();
+            return Task.Factory.StartNew(() =>
+            {
+                Task.Delay(4000, cancellationToken).GetAwaiter().GetResult();
 
-            var simplePollingResult = simplesPollings.FirstOrDefault(order => order.Id == orderEvent.Id);
+                var simplesPollings = SimplePolling.GetSimplePollings();
 
-            if (simplePollingResult == null)
-                return;
+                var simplePollingResult = simplesPollings.FirstOrDefault(order => order.Id == orderEvent.Id);
 
-            simplePollingResult.Notify();
+                Console.WriteLine("Passou pelo handler");
+
+                return simplePollingResult;
+
+            }, cancellationToken);
         }
     }
 }
