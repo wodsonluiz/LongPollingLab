@@ -23,11 +23,11 @@ namespace ExampleLongPollingWithTaskCompletionSource
             Task.Delay(300).GetAwaiter().GetResult();
 
 
-            // - Mongo trigou o evento
+            // - MONGO TRINGADO EVENTO / CONFIGURANDO TIMEOUT
             var simplePollingResult = HandlerResponseToClient(new OrderEvent { Id = "id_2" }, CancellationToken.None);
             var timeout = Task.Delay(5000, CancellationToken.None);
-            // - Concorrência com timeout
-
+            
+            // - CORRIDA TIMEOUT X LONG POLLING
             var completedTask = Task.WhenAny(simplePollingResult, timeout).GetAwaiter().GetResult();
 
             if(completedTask != timeout)

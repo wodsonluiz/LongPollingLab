@@ -35,7 +35,7 @@ namespace ExampleLongPollingWithTaskCompletionSource
         {
             lock (simplePollings!)
             {
-                Console.WriteLine($"Evento respondido pro cliente {JsonConvert.SerializeObject(this)}");
+                Console.WriteLine($"Evento respondido pro cliente o objeto {JsonConvert.SerializeObject(this)}");
                 cts.SetResult(true);
             }
         }
