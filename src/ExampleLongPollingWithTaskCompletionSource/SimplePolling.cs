@@ -15,10 +15,11 @@ namespace ExampleLongPollingWithTaskCompletionSource
         private static List<SimplePolling> simplePollings = new List<SimplePolling>();
         private readonly TaskCompletionSource<bool> cts;
 
-        public SimplePolling(string id, string serialNumber)
+        public SimplePolling(string id, string serialNumber, string description)
         {
             Id = id;
             SerialNumber = serialNumber;
+            Description = description;
             cts = new TaskCompletionSource<bool>();
         }
 

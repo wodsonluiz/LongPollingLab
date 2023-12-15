@@ -38,10 +38,10 @@ namespace Service.Mongo
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
             };
 
-            var lastDocumentInOpLog = _tokenManger.GetLastUpdatedDocument();
+            //var lastDocumentInOpLog = _tokenManger.GetLastUpdatedDocument();
 
-            if (lastDocumentInOpLog != null)
-                options.StartAtOperationTime = lastDocumentInOpLog;
+            //if (lastDocumentInOpLog != null)
+            //    options.StartAtOperationTime = lastDocumentInOpLog;
 
             var collection = _provider.GetDatabase("MyCollections").GetCollection<T>("Orders");
 

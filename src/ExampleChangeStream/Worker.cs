@@ -21,19 +21,18 @@ namespace ExampleChangeStream
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                await Console.Out.WriteLineAsync($"Worker running at: {DateTimeOffset.Now}");
                 WatchEventMongo(stoppingToken);
-
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
             }
         }
 
         private void WatchEventMongo(CancellationToken stoppingToken)
         {
-            var watcher = _service.Listener<Order>(stoppingToken);
-
             try
             {
+                var watcher = _service.Listener<Order>(stoppingToken);
+
                 while (watcher.MoveNext())
                 {
                     var change = watcher.Current;
@@ -47,10 +46,9 @@ namespace ExampleChangeStream
                     _tokenManger.Save(change.ResumeToken);
                 }
             }
-            catch 
+            catch(Exception ex)
             {
-                watcher?.Dispose();
-                throw;
+                Console.WriteLine($"ERROR {ex.Message}");
             }
         }
     }

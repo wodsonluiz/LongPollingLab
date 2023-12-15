@@ -13,14 +13,16 @@ namespace ExampleLongPollingWithTaskCompletionSource
 
         public static IEnumerable<Order> GetFakeOrders(int count)
         {
-            var result = new List<Order>();
+            Task.Delay(1000).GetAwaiter().GetResult();
+
+            var orders = new List<Order>();
 
             for (int i = 0; i < count; i++)
             {
-                result.Add(new Order { Id = $"id_{i}", Description = $"Description test {i}", SerialNumber = Guid.NewGuid().ToString() });
+                orders.Add(new Order { Id = $"id_{i}", Description = $"Description test {i}", SerialNumber = Guid.NewGuid().ToString() });
             }
 
-            return result;
+            return orders;
         }
     
         public void Pay(string pagamento)
