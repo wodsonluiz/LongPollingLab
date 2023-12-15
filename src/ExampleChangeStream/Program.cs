@@ -9,7 +9,7 @@ namespace ExampleChangeStream
             IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {
-                    var conn = "mongodb+srv://admin:PxyxsbtC9EW5c067@clusterdev.3dcvmij.mongodb.net/?retryWrites=true&w=majority";
+                    var conn = "mongodb+srv://admin:123@localhost/?retryWrites=true&w=majority";
                     services.AddSingleton(new MongoProvider(conn));
                     services.AddSingleton<IMongoService, MongoService>();
                     services.AddSingleton<ITokenManger, TokenManger>();
