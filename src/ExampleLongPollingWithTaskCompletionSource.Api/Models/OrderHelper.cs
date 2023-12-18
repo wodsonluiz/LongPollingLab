@@ -12,9 +12,12 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Models
 
             var orders = new List<Order>();
 
+            if (count <= 0)
+                return orders;
+
             for (int i = 0; i < count; i++)
             {
-                orders.Add(new Order { _id = $"id_{i}", Description = $"Description test {i}", SerialNumber = Guid.NewGuid().ToString() });
+                orders.Add(new Order { Id = $"id_{i}", Description = $"Description test {i}", SerialNumber = Guid.NewGuid().ToString() });
             }
 
             return orders;

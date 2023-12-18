@@ -12,10 +12,10 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo
 
     public class MongoService : IMongoService
     {
-        private readonly MongoProvider _provider;
+        private readonly IMongoProvider _provider;
         private readonly ChangeStreamOperationType[] _changeStreamOperationTypes;
 
-        public MongoService(MongoProvider provider)
+        public MongoService(IMongoProvider provider)
         {
             _provider = provider;
 

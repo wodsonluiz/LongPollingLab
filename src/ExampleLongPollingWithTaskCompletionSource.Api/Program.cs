@@ -1,7 +1,9 @@
+using ExampleLongPollingWithTaskCompletionSource.Api.Repository;
 using ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Runtime.CompilerServices;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api
 {
@@ -18,12 +20,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<IMongoProvider>(_ =>
-            {
-                var conn = "mongodb+srv://admin:PxyxsbtC9EW5c067@clusterdev.3dcvmij.mongodb.net/?retryWrites=true&w=majority";
-                return new MongoProvider(conn);
-            });
-            builder.Services.AddSingleton<ITokenManger,  TokenManger>();
+            builder.Services.AddMongoService();
 
             var app = builder.Build();
 
@@ -40,6 +37,24 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
             app.MapControllers();
 
             app.Run();
+        }
+
+        
+    }
+
+
+    public static class ServiceCollectionExtensions
+    {
+        public static void AddMongoService(this IServiceCollection services)
+        {
+            services.AddSingleton<IMongoProvider>(_ =>
+            {
+                var conn = "mongodb+srv://admin:PxyxsbtC9EW5c067@clusterdev.3dcvmij.mongodb.net/?retryWrites=true&w=majority";
+                return new MongoProvider(conn);
+            });
+            services.AddSingleton<ITokenManger, TokenManger>();
+            services.AddScoped<IMongoService, MongoService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
         }
     }
 }
