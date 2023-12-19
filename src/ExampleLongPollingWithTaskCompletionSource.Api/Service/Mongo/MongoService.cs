@@ -23,8 +23,6 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo
             {
                 ChangeStreamOperationType.Update,
                 ChangeStreamOperationType.Insert,
-                ChangeStreamOperationType.Delete,
-                ChangeStreamOperationType.Replace,
             };
         }
 

@@ -33,11 +33,19 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
 
         public void Notify()
         {
-            lock (orderLongPollings!)
+            try
             {
-                Tcs.SetResult(true);
-                orderLongPollings.Remove(this);
+                lock (orderLongPollings!)
+                {
+                    Tcs.SetResult(true);
+                    orderLongPollings.Remove(this);
+                }
             }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
         }
 
         public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollings;

@@ -88,21 +88,23 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
 
         private OrderLongPolling? ListenerEvents(CancellationToken stoppingToken)
         {
-            OrderLongPolling orderLongPolling = null;
-            var watcher = _mongoService.Listener<OrderEvent>(stoppingToken);
-
-            while (watcher.MoveNext())
+            using (var watcher = _mongoService.Listener<OrderEvent>(stoppingToken))
             {
-                var orderEvent = watcher.Current.FullDocument;
+                OrderLongPolling orderLongPolling = null;
 
-                orderLongPolling = OrderLongPolling.GetOrdersLongPollings()
-                    .FirstOrDefault(o => o.SerialNumber == orderEvent.SerialNumber);
+                while (watcher.MoveNext())
+                {
+                    var orderEvent = watcher.Current.FullDocument;
 
-                if (orderLongPolling != null)
-                    break;
+                    orderLongPolling = OrderLongPolling.GetOrdersLongPollings()
+                        .FirstOrDefault(o => o.SerialNumber == orderEvent.SerialNumber);
+
+                    if (orderLongPolling != null)
+                        break;
+                }
+
+                return orderLongPolling;
             }
-
-            return orderLongPolling;
         }
     }
 }
