@@ -23,41 +23,21 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
             Description = description;
 
             tcs = new TaskCompletionSource<bool>();
-        }
 
-        public Task PushAync(CancellationToken stoppingToken)
-        {
-            return Task.Factory.StartNew(() =>
+            lock (orderLongPollings!)
             {
-                lock (orderLongPollings!)
-                {
-                    orderLongPollings.Add(this);
-                }
-            }, stoppingToken);
+                orderLongPollings.Add(this);
+            }
         }
 
-        public Task NotifyAync(CancellationToken stoppingToken)
+        public void Notify()
         {
-            return Task.Factory.StartNew(() =>
+            lock (orderLongPollings!)
             {
-                lock (tcs)
-                {
-                    this.tcs.SetResult(true);
-                }
-            }, stoppingToken);
+                tcs.SetResult(true);
+                orderLongPollings.Remove(this);
+            }
         }
-
-        public Task RemoveAync(CancellationToken stoppingToken)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                lock (orderLongPollings!)
-                {
-                    orderLongPollings.Remove(this);
-                }
-            }, stoppingToken);
-        }
-
 
         public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollings;
     }
