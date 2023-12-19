@@ -17,7 +17,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
     [Route("[controller]")]
     public class OrdersController : ControllerBase
     {
-        const int CONFIG_TIMEOUT = 10;
+        const int CONFIG_TIMEOUT = 60;
         private readonly IMongoService _mongoService;
         private readonly IOrderRepository _orderRepository;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -38,23 +38,26 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
             if (orders == null)
                 throw new InvalidOperationException("Unable to search for orders");
 
-            if (!orders.Any())
-            {
-                _ = new OrderLongPolling($"{request.Id}", $"description {Guid.NewGuid()}", request.SerialNumber, "pending");
-
-                //TIMEOUT CONFIGURADO
-                var taskGetOrderTimeout = GetListOrdersEmpty(_cancellationTokenSource.Token);
-
-                //LONG POLLING
-                var taskGetOrdersFromChangeEvents = GetOrdersFromChangeStream(_cancellationTokenSource.Token);
-
-                var tasksCompleted = await Task.WhenAny(taskGetOrderTimeout, taskGetOrdersFromChangeEvents);
-
-                if (tasksCompleted != taskGetOrderTimeout)
-                    orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
-
+            if (orders.Any())
                 return orders;
-            }
+
+            var shouldChangeEvents = false;
+
+            _ = new OrderLongPolling($"{request.Id}", $"description {Guid.NewGuid()}", request.SerialNumber, "pending");
+
+            //TIMEOUT CONFIGURADO
+            var taskGetOrderTimeout = GetListOrdersEmpty(_cancellationTokenSource.Token);
+
+            //LONG POLLING
+            var taskGetOrdersFromChangeEvents = GetOrdersFromChangeStream(_cancellationTokenSource.Token);
+
+            var tasksCompleted = await Task.WhenAny(taskGetOrderTimeout, taskGetOrdersFromChangeEvents);
+
+            if (tasksCompleted != taskGetOrderTimeout)
+                shouldChangeEvents = true;
+
+            if (shouldChangeEvents)
+                orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
 
             return orders;
         }
@@ -77,6 +80,8 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
                 var polling = ListenerEvents(stoppingToken);
 
                 polling?.Notify();
+
+                return polling?.Tcs.Task;
 
             }, stoppingToken);
         }

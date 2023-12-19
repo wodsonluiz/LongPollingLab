@@ -15,7 +15,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         public string? Status { get; set; }
 
         private static List<OrderLongPolling> orderLongPollings = new List<OrderLongPolling>();
-        private readonly TaskCompletionSource<bool> tcs;
+        public readonly TaskCompletionSource<bool> Tcs;
 
         public OrderLongPolling(string id, string description, string serialNumber, string status)
         {
@@ -23,7 +23,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
             SerialNumber = serialNumber;
             Description = description;
 
-            tcs = new TaskCompletionSource<bool>();
+            Tcs = new TaskCompletionSource<bool>();
 
             lock (orderLongPollings!)
             {
@@ -35,7 +35,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         {
             lock (orderLongPollings!)
             {
-                tcs.SetResult(true);
+                Tcs.SetResult(true);
                 orderLongPollings.Remove(this);
             }
         }
