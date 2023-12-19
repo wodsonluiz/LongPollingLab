@@ -13,7 +13,6 @@ namespace ExampleTaskCompletionSource
         {
             var order = Order.GetFakeOrders(1).FirstOrDefault();
             Handler(order).GetAwaiter().GetResult();
-            Console.WriteLine("Finalizado o programa de pagamento");
         }
 
         private static async Task Handler(Order order)
@@ -27,14 +26,11 @@ namespace ExampleTaskCompletionSource
             };
 
             order.Pay("1");
-            order.Pay("2");
-            order.Pay("3");
-            order.Pay("4");
-            order.Pay("5");
+
+            await Task.Delay(5000);
 
             await tcs.Task;
 
-            Console.WriteLine("Processo de pagamento concluido");
         }
     }
 }

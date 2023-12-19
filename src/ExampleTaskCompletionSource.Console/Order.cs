@@ -24,10 +24,10 @@ namespace ExampleTaskCompletionSource
     
         public void Pay(string pagamento)
         {
-            Task.Factory.StartNew(async () => 
+            Task.Factory.StartNew(() => 
             {
                 Console.WriteLine($"Iniciando o pagamento - {pagamento}");
-                await Task.Delay(5000);
+                //await Task.Delay(5000);
                 DataRead?.Invoke(this, EventArgs.Empty);
             });
         }

@@ -17,7 +17,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
     [Route("[controller]")]
     public class OrdersController : ControllerBase
     {
-        const int CONFIG_TIMEOUT = 60;
+        const int CONFIG_TIMEOUT = 600;
         private readonly IMongoService _mongoService;
         private readonly IOrderRepository _orderRepository;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -35,23 +35,23 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
         {
             var orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
 
-            if(orders == null)
+            if (orders == null)
                 throw new InvalidOperationException("Unable to search for orders");
 
-            if(!orders.Any())
+            if (!orders.Any())
             {
                 var guid = Guid.NewGuid().ToString();
-                var orderPolling = new OrderLongPolling($"{request.Id}", $"description {guid}", request.SerialNumber, "pending");
+                var orderPolling = new OrderLongPollingRefactor($"{request.Id}", $"description {guid}", request.SerialNumber, "pending");
 
                 await orderPolling.PushAync(_cancellationTokenSource.Token);
 
+                //TIMEOUT CONFIGURADO
                 var taskGetOrderTimeout = GetListOrdersEmpty(_cancellationTokenSource.Token);
+
+                //LONG POLLING
                 var taskGetOrdersFromChangeEvents = GetOrdersFromChangeStream(_cancellationTokenSource.Token);
 
-                orders = await Task.WhenAny(taskGetOrdersFromChangeEvents, taskGetOrderTimeout).Unwrap();
-
-                await orderPolling.NotifyAync(_cancellationTokenSource.Token);
-                await orderPolling.RemoveAync(_cancellationTokenSource.Token);
+                orders = await Task.WhenAny(taskGetOrdersFromChangeEvents, taskGetOrdersFromChangeEvents).Unwrap();
 
                 return orders;
             }
@@ -75,7 +75,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
             {
                 throw;
             }
-            
+
         }
 
         private async Task<IEnumerable<Order>> GetOrdersFromChangeStream(CancellationToken stoppingToken)
@@ -96,41 +96,41 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
             {
                 throw;
             }
-            
+
         }
 
-        private async Task<OrderLongPolling?> ListenerEvents(CancellationToken stoppingToken)
+        private async Task<OrderLongPollingRefactor?> ListenerEvents(CancellationToken stoppingToken)
         {
             try
             {
-                OrderLongPolling orderLongPolling = null;
-
-                await Task.Factory.StartNew(() =>
+                await Task.Factory.StartNew(async () =>
                 {
+                    OrderLongPollingRefactor orderLongPolling = null;
                     var watcher = _mongoService.Listener<OrderEvent>(_cancellationTokenSource.Token);
 
                     while (watcher.MoveNext())
                     {
                         var orderEvent = watcher.Current.FullDocument;
 
-                        orderLongPolling = OrderLongPolling.GetOrdersLongPollings()
+                        orderLongPolling = OrderLongPollingRefactor.GetOrdersLongPollings()
                             .FirstOrDefault(o => o.SerialNumber == orderEvent.SerialNumber);
 
-                        if (orderLongPolling != null)
-                        {
-                            break;
-                        }
+                        orderLongPolling.Tcs.SetResult(true);
+
+                        break;
                     }
+
+                    return orderLongPolling;
 
                 }, stoppingToken);
 
-                return orderLongPolling;
+                return null;
             }
             catch (Exception ex)
             {
                 throw;
             }
-            
+
         }
     }
 }

@@ -14,7 +14,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         public string? Status { get; set; }
 
         private static List<OrderLongPolling> orderLongPollings = new List<OrderLongPolling>();
-        private readonly TaskCompletionSource<bool> cts;
+        private readonly TaskCompletionSource<bool> tcs;
 
         public OrderLongPolling(string id, string description, string serialNumber, string status)
         {
@@ -22,7 +22,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
             SerialNumber = serialNumber;
             Description = description;
 
-            cts = new TaskCompletionSource<bool>(TaskContinuationOptions.RunContinuationsAsynchronously);
+            tcs = new TaskCompletionSource<bool>();
         }
 
         public Task PushAync(CancellationToken stoppingToken)
@@ -40,9 +40,9 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         {
             return Task.Factory.StartNew(() =>
             {
-                lock (cts)
+                lock (tcs)
                 {
-                    this.cts.SetResult(true);
+                    this.tcs.SetResult(true);
                 }
             }, stoppingToken);
         }
