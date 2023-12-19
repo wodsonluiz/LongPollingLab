@@ -51,7 +51,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
                 //LONG POLLING
                 var taskGetOrdersFromChangeEvents = GetOrdersFromChangeStream(_cancellationTokenSource.Token);
 
-                orders = await Task.WhenAny(taskGetOrdersFromChangeEvents, taskGetOrdersFromChangeEvents).Unwrap();
+                orders = await Task.WhenAny(taskGetOrdersFromChangeEvents, taskGetOrderTimeout).Unwrap();
 
                 return orders;
             }
