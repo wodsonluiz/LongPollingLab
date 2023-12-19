@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
@@ -24,28 +25,37 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
             cts = new TaskCompletionSource<bool>(TaskContinuationOptions.RunContinuationsAsynchronously);
         }
 
-        public void Push()
+        public Task PushAync(CancellationToken stoppingToken)
         {
-            lock (orderLongPollings!)
+            return Task.Factory.StartNew(() =>
             {
-                orderLongPollings.Add(this);
-            }
+                lock (orderLongPollings!)
+                {
+                    orderLongPollings.Add(this);
+                }
+            }, stoppingToken);
         }
 
-        public void Notify()
+        public Task NotifyAync(CancellationToken stoppingToken)
         {
-            lock (orderLongPollings!)
+            return Task.Factory.StartNew(() =>
             {
-                cts.SetResult(true);
-            }
+                lock (cts)
+                {
+                    this.cts.SetResult(true);
+                }
+            }, stoppingToken);
         }
 
-        public void Remove()
+        public Task RemoveAync(CancellationToken stoppingToken)
         {
-            lock (orderLongPollings!)
+            return Task.Factory.StartNew(() =>
             {
-                orderLongPollings.Remove(this);
-            }
+                lock (orderLongPollings!)
+                {
+                    orderLongPollings.Remove(this);
+                }
+            }, stoppingToken);
         }
 
 
