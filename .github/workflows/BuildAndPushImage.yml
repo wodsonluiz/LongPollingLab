@@ -14,4 +14,17 @@ jobs:
 
       - name: Begin pipeline
         run: echo Vamos la
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build .\src\ExampleLongPollingWithTaskCompletionSource.Api\
+        
+      
     
