@@ -1,8 +1,4 @@
-﻿using ExampleLongPollingWithTaskCompletionSource.Api.Models;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
@@ -33,19 +29,8 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
 
         public void Notify()
         {
-            try
-            {
-                lock (orderLongPollings!)
-                {
-                    Tcs.SetResult(true);
-                    orderLongPollings.Remove(this);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-            
+            Tcs.SetResult(true);
+            orderLongPollings.Remove(this);
         }
 
         public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollings;

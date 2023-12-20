@@ -4,6 +4,7 @@ using ExampleLongPollingWithTaskCompletionSource.Api.Repository;
 using ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling;
 using ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -17,17 +18,20 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
     [Route("[controller]")]
     public class OrdersController : ControllerBase
     {
-        const int CONFIG_TIMEOUT = 60;
         private readonly IMongoService _mongoService;
         private readonly IOrderRepository _orderRepository;
         private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly TaskTimeoutOptions _taskTimeoutOptions;
 
-        public OrdersController(IMongoService mongoService, IOrderRepository orderRepository)
+        public OrdersController(IMongoService mongoService, 
+            IOrderRepository orderRepository,
+            IOptions<TaskTimeoutOptions> options)
         {
+            _taskTimeoutOptions = options.Value;
             _mongoService = mongoService;
             _orderRepository = orderRepository;
             _cancellationTokenSource = new CancellationTokenSource();
-            _cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(CONFIG_TIMEOUT));
+            _cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(_taskTimeoutOptions.TimeoutIntSecounds));
         }
 
         [HttpGet]
@@ -66,7 +70,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
         {
             return Task.Run(async () =>
             {
-                await Task.Delay((int)TimeSpan.FromSeconds(CONFIG_TIMEOUT).TotalMilliseconds);
+                await Task.Delay((int)TimeSpan.FromSeconds(_taskTimeoutOptions.TimeoutIntSecounds).TotalMilliseconds);
 
                 return OrderHelper.GetFakeOrders(0);
 

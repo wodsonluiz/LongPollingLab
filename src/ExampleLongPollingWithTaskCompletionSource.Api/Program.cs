@@ -1,17 +1,19 @@
 using ExampleLongPollingWithTaskCompletionSource.Api.Repository;
 using ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api
 {
-    public class Program
+    internal class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var config = builder.Configuration;
 
             // Add services to the container.
 
@@ -20,7 +22,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddMongoService();
+            builder.Services.AddMongoService(config);
 
             var app = builder.Build();
 
@@ -38,18 +40,30 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
 
             app.Run();
         }
+    }
 
-        
+    internal static class ServiceExtensions
+    {
+        public static OptionsBuilder<T> AddConfig<T>(this IServiceCollection services, string configSectionPath) where T : class
+        {
+            var builder = services
+                .AddOptions<T>()
+                .BindConfiguration(configSectionPath)
+                .ValidateDataAnnotations();
+
+            return builder;
+        }
     }
 
 
-    public static class ServiceCollectionExtensions
+    internal static class ServiceCollectionExtensions
     {
-        public static void AddMongoService(this IServiceCollection services)
+        public static void AddMongoService(this IServiceCollection services, IConfiguration config)
         {
+            services.AddConfig<TaskTimeoutOptions>(TaskTimeoutOptions.ConfigSectionName);
             services.AddSingleton<IMongoProvider>(_ =>
             {
-                var conn = "mongodb+srv://admin:PxyxsbtC9EW5c067@clusterdev.3dcvmij.mongodb.net/?retryWrites=true&w=majority";
+                var conn = config.GetConnectionString("MongoDb");
                 return new MongoProvider(conn);
             });
             services.AddSingleton<ITokenManger, TokenManger>();
