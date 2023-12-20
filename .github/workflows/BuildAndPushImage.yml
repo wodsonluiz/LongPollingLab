@@ -25,6 +25,24 @@ jobs:
 
       - name: Build
         run: dotnet build src/ExampleLongPollingWithTaskCompletionSource.Api/
+
+  docker:
+    runs-on: ubuntu-18.04
+    needs: build
+    steps:
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5.1.0
+        with:
+          # Path to the Dockerfile
+          file: src/ExampleLongPollingWithTaskCompletionSource.Api/
+
+          
+    
+
+    
+    
+    
+        
         
       
     
