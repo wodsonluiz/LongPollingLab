@@ -6,8 +6,8 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["src/ExampleLongPollingWithTaskCompletionSource.Api/ExampleLongPollingWithTaskCompletionSource.Api.csproj", "src/ExampleLongPollingWithTaskCompletionSource.Api/"]
-RUN dotnet restore "src/ExampleLongPollingWithTaskCompletionSource.Api/ExampleLongPollingWithTaskCompletionSource.Api.csproj"
+COPY ["/ExampleLongPollingWithTaskCompletionSource.Api/ExampleLongPollingWithTaskCompletionSource", "/ExampleLongPollingWithTaskCompletionSource.Api/"]
+RUN dotnet restore "/ExampleLongPollingWithTaskCompletionSource.Api/ExampleLongPollingWithTaskCompletionSource.Api"
 COPY . .
 WORKDIR "/src/ExampleLongPollingWithTaskCompletionSource.Api"
 RUN dotnet build "ExampleLongPollingWithTaskCompletionSource.Api.csproj" -c Release -o /app/build
