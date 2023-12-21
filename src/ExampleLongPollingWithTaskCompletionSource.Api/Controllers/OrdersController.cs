@@ -35,7 +35,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Order>> Get([FromQuery] GetAllOrderRequest request)
+        public async Task<IActionResult> Get([FromQuery] GetAllOrderRequest request)
         {
             var orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
 
@@ -43,38 +43,26 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
                 throw new InvalidOperationException("Unable to search for orders");
 
             if (orders.Any())
-                return orders;
-
-            var shouldChangeEvents = false;
+                return Ok(orders);
 
             _ = new OrderLongPolling($"{request.Id}", $"description {Guid.NewGuid()}", request.SerialNumber, "pending");
 
             //TIMEOUT CONFIGURADO
-            var taskGetOrderTimeout = GetListOrdersEmpty(_cancellationTokenSource.Token);
+            var taskGetOrderTimeout = Task.Delay((int)TimeSpan.FromSeconds(_taskTimeoutOptions.TimeoutIntSecounds).TotalMilliseconds);
 
             //LONG POLLING
             var taskGetOrdersFromChangeEvents = GetOrdersFromChangeStream(_cancellationTokenSource.Token);
 
             var tasksCompleted = await Task.WhenAny(taskGetOrderTimeout, taskGetOrdersFromChangeEvents);
 
-            if (tasksCompleted != taskGetOrderTimeout)
-                shouldChangeEvents = true;
-
-            if (shouldChangeEvents)
-                orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
-
-            return orders;
-        }
-
-        private Task<IEnumerable<Order>> GetListOrdersEmpty(CancellationToken stoppingToken)
-        {
-            return Task.Run(async () =>
+            if (tasksCompleted == taskGetOrderTimeout)
             {
-                await Task.Delay((int)TimeSpan.FromSeconds(_taskTimeoutOptions.TimeoutIntSecounds).TotalMilliseconds);
+                return NoContent();
+            }
 
-                return OrderHelper.GetFakeOrders(0);
+            orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
 
-            }, stoppingToken);
+            return Ok(orders);
         }
 
         private Task GetOrdersFromChangeStream(CancellationToken stoppingToken)
