@@ -1,13 +1,12 @@
 ﻿using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo
 {
     public interface IMongoService
     {
-        IEnumerator<ChangeStreamDocument<T>> Listener<T>(CancellationToken stoppingToken);
+        IEnumerator<ChangeStreamDocument<T>> BuildHandlerListerner<T>();
     }
 
     public class MongoService : IMongoService
@@ -26,7 +25,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo
             };
         }
 
-        public IEnumerator<ChangeStreamDocument<T>> Listener<T>(CancellationToken stoppingToken)
+        public IEnumerator<ChangeStreamDocument<T>> BuildHandlerListerner<T>()
         {
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<T>>()
             .Match(change => _changeStreamOperationTypes.Contains(change.OperationType));
@@ -38,7 +37,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.Mongo
 
             var collection = _provider.GetDatabase("MyCollections").GetCollection<T>("Orders");
 
-            var changeStream = collection.Watch(pipeline, options, stoppingToken)
+            var changeStream = collection.Watch(pipeline, options)
                 .ToEnumerable()
                 .GetEnumerator();
 

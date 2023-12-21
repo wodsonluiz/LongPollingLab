@@ -67,7 +67,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
                 return new MongoProvider(conn);
             });
             services.AddSingleton<ITokenManger, TokenManger>();
-            services.AddScoped<IMongoService, MongoService>();
+            services.AddSingleton<IMongoService, MongoService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
         }
     }

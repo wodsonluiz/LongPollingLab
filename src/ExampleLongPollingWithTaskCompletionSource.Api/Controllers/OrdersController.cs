@@ -56,9 +56,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
             var tasksCompleted = await Task.WhenAny(taskGetOrderTimeout, taskGetOrdersFromChangeEvents);
 
             if (tasksCompleted == taskGetOrderTimeout)
-            {
                 return NoContent();
-            }
 
             orders = await _orderRepository.GetOrderAsync(request.SerialNumber);
 
@@ -69,7 +67,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
         {
             return Task.Factory.StartNew(() =>
             {
-                var polling = ListenerEvents(stoppingToken);
+                var polling = ListenerEvents();
 
                 polling?.Notify();
 
@@ -78,9 +76,9 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
             }, stoppingToken);
         }
 
-        private OrderLongPolling? ListenerEvents(CancellationToken stoppingToken)
+        private OrderLongPolling? ListenerEvents()
         {
-            using (var watcher = _mongoService.Listener<OrderEvent>(stoppingToken))
+            using (var watcher = _mongoService.BuildHandlerListerner<OrderEvent>())
             {
                 OrderLongPolling orderLongPolling = null;
 
