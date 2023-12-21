@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
@@ -10,7 +11,8 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         public string? SerialNumber { get; set; }
         public string? Status { get; set; }
 
-        private static List<OrderLongPolling> orderLongPollings = new List<OrderLongPolling>();
+        private static AsyncLocal<List<OrderLongPolling>> orderLongPollingsAsync = new();
+        //private static List<OrderLongPolling> orderLongPollings = new List<OrderLongPolling>();
         public readonly TaskCompletionSource<bool> Tcs;
 
         public OrderLongPolling(string id, string description, string serialNumber, string status)
@@ -21,18 +23,26 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
 
             Tcs = new TaskCompletionSource<bool>();
 
-            lock (orderLongPollings!)
+            //lock (orderLongPollings!)
+            //{
+            //    orderLongPollings.Add(this);
+            //}
+
+            lock (orderLongPollingsAsync!)
             {
-                orderLongPollings.Add(this);
+                if(orderLongPollingsAsync.Value == null)
+                    orderLongPollingsAsync.Value = new List<OrderLongPolling> ();
+
+                orderLongPollingsAsync?.Value?.Add(this);
             }
         }
 
         public void Notify()
         {
-            Tcs.SetResult(true);
-            orderLongPollings.Remove(this);
+            Tcs?.SetResult(true);
+            orderLongPollingsAsync?.Value?.Remove(this);
         }
 
-        public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollings;
+        public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollingsAsync.Value!;
     }
 }

@@ -100,8 +100,15 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Controllers
                 {
                     var orderEvent = watcher.Current.FullDocument;
 
-                    orderLongPolling = OrderLongPolling.GetOrdersLongPollings()
-                        .FirstOrDefault(o => o.SerialNumber == orderEvent.SerialNumber);
+                    var ordersPolling = OrderLongPolling.GetOrdersLongPollings();
+
+                    if(ordersPolling == null)
+                        continue;
+
+                    if(string.IsNullOrEmpty(orderEvent?.SerialNumber))
+                        continue;
+
+                    orderLongPolling = ordersPolling.FirstOrDefault(o => o.SerialNumber == orderEvent.SerialNumber);
 
                     if (orderLongPolling != null)
                         break;
