@@ -23,6 +23,7 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMongoService(config);
+            builder.Services.AddHostedService<ListernerWorker>();
 
             var app = builder.Build();
 
@@ -34,7 +35,6 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api
             }
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

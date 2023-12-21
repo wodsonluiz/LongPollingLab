@@ -11,7 +11,8 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
         public string? SerialNumber { get; set; }
         public string? Status { get; set; }
 
-        private static AsyncLocal<List<OrderLongPolling>> orderLongPollingsAsync = new();
+        //private static AsyncLocal<List<OrderLongPolling>> orderLongPollingsAsync = new();
+        private static List<OrderLongPolling> orderLongPollingsAsync = new();
         public readonly TaskCompletionSource<bool> Tcs;
 
         public OrderLongPolling(string id, string description, string serialNumber, string status)
@@ -25,19 +26,19 @@ namespace ExampleLongPollingWithTaskCompletionSource.Api.Service.LongPolling
 
             lock (orderLongPollingsAsync!)
             {
-                if (orderLongPollingsAsync.Value == null)
-                    orderLongPollingsAsync.Value = new List<OrderLongPolling>();
+                //if (orderLongPollingsAsync.Value == null)
+                //    orderLongPollingsAsync.Value = new List<OrderLongPolling>();
 
-                orderLongPollingsAsync?.Value.Add(this);
+                orderLongPollingsAsync?.Add(this);
             }
         }
 
         public void Notify()
         {
             Tcs?.SetResult(true);
-            orderLongPollingsAsync?.Value?.Remove(this);
+            orderLongPollingsAsync?.Remove(this);
         }
 
-        public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollingsAsync.Value!;
+        public static IEnumerable<OrderLongPolling> GetOrdersLongPollings() => orderLongPollingsAsync!;
     }
 }
